@@ -6,10 +6,12 @@ use std::env;
 use crate::day01::day01;
 use crate::day02::day02;
 use crate::day03::day03;
+use crate::day04::day04;
 
 mod day01;
 mod day02;
 mod day03;
+mod day04;
 mod toolbox;
 
 macro_rules! measure {
@@ -37,8 +39,13 @@ fn main() {
         measure!(day02());
     }
 
-    if args.contains(&"all".to_string()) || args.contains(&"day03".to_string()) || args.contains(&"latest".to_string()) {
+    if args.contains(&"all".to_string()) || args.contains(&"day03".to_string()) {
         println!("{}", format!("--- day03:").underline().green());
         measure!(day03());
+    }
+
+    if args.contains(&"all".to_string()) || args.contains(&"day04".to_string()) || args.contains(&"latest".to_string()) {
+        println!("{}", format!("--- day04:").underline().green());
+        measure!(day04());
     }
 }
