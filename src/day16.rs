@@ -1,20 +1,13 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use std::fs;
 
 use itertools::Itertools;
 
 pub(crate) fn day16() {
     let input = fs::read_to_string("input/day16/input.txt").unwrap();
-    let moves: Vec<&str> = input.trim().split(",").collect();
-    let mut ans = dance("abcdefghijklmnop", &moves);
-    println!("{}", ans);
-    for i in 1..1000000000 {
-        ans = dance(ans.as_str(), &moves);
-        if i % 10000 == 0 {
-            println!("{}", i);
-        }
-    }
-    println!("{}", ans);
+    let moves: Vec<DanceMove> = parse(input.trim());
+    println!("{}", dance("abcdefghijklmnop", &moves));
+    println!("{}", dance_a_lot("abcdefghijklmnop", &moves));
 }
 
 enum DanceMove {
@@ -44,52 +37,72 @@ fn parse(input: &str) -> Vec<DanceMove> {
         .collect()
 }
 
-fn dance(programs: &str, moves: &Vec<&str>) -> String {
+fn dance(programs: &str, moves: &Vec<DanceMove>) -> String {
     let mut programs: VecDeque<char> = programs.chars().collect();
     for m in moves {
-        match m.chars().nth(0).unwrap() {
-            's' => {
-                let i = m[1..m.len()].parse::<i32>().unwrap();
-                for _ in 0..i {
+        match m {
+            DanceMove::S(i) => {
+                for _ in 0..*i {
                     let temp = programs.pop_back().unwrap();
                     programs.push_front(temp);
                 }
             }
-            'x' => {
-                let (from, to) = m[1..m.len()].split_once("/").unwrap();
-                programs.swap(from.parse().unwrap(), to.parse().unwrap());
+            DanceMove::X(from, to) => {
+                programs.swap(*from, *to);
             }
-            'p' => {
-                let first = m.chars().nth(1).unwrap();
-                let second = m.chars().nth(3).unwrap();
-                let pos_first = programs.iter().position(|c| *c == first).unwrap();
-                let pos_second = programs.iter().position(|c| *c == second).unwrap();
+            DanceMove::P(first, second) => {
+                let pos_first = programs.iter().position(|c| c == first).unwrap();
+                let pos_second = programs.iter().position(|c| c == second).unwrap();
                 programs.swap(pos_first, pos_second);
             }
-            c => panic!("Unknown move {}", c)
         }
     }
 
     programs.iter().join("")
 }
 
+fn dance_a_lot(programs: &str, moves: &Vec<DanceMove>) -> String {
+    let mut seen: HashMap<String, usize> = HashMap::new();
+    let mut i = 0;
+    let mut ans = programs.to_string();
+    while i < 1000000000 {
+        ans = dance(ans.as_str(), &moves);
+        i += 1;
+
+        if let Some(dejavu) = seen.insert(ans.clone(), i) {
+            let remaining = 1000000000 - i;
+            let skip = remaining / (i - dejavu);
+            i += skip * (i - dejavu);
+            break;
+        }
+    }
+
+    while i < 1000000000 {
+        ans = dance(ans.as_str(), &moves);
+        i += 1;
+    }
+    ans
+}
+
 #[cfg(test)]
 mod day16_tests {
     use std::fs;
 
-    use crate::day16::dance;
+    use crate::day16::{dance, dance_a_lot, DanceMove, parse};
 
     #[test]
     fn test_works() {
         let input = fs::read_to_string("input/day16/test.txt").unwrap();
-        let moves: Vec<&str> = input.trim().split(",").collect();
+        let moves: Vec<DanceMove> = parse(input.trim());
         assert_eq!("baedc", dance("abcde", &moves));
+        assert_eq!("abcde", dance_a_lot("abcde", &moves));
     }
 
     #[test]
     fn input_works() {
         let input = fs::read_to_string("input/day16/input.txt").unwrap();
-        let moves: Vec<&str> = input.trim().split(",").collect();
+        let moves: Vec<DanceMove> = parse(input.trim());
         assert_eq!("ebjpfdgmihonackl", dance("abcdefghijklmnop", &moves));
+        assert_eq!("abocefghijklmndp", dance_a_lot("abcdefghijklmnop", &moves));
     }
 }
