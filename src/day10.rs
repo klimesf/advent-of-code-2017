@@ -13,7 +13,7 @@ fn part_a(list_len: usize, input: &str) -> usize {
     list[0] * list[1]
 }
 
-fn knot_hash(input: &str) -> String {
+pub(crate) fn knot_hash(input: &str) -> String {
     let mut list: Vec<usize> = (0..256).collect();
     let mut lengths: Vec<usize> = input.chars().map(|c| c as usize).collect();
     [17, 31, 73, 47, 23].iter().for_each(|i| lengths.push(*i));
