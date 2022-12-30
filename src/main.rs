@@ -26,6 +26,7 @@ use crate::day20::day20;
 use crate::day21::day21;
 use crate::day22::day22;
 use crate::day23::day23;
+use crate::day24::day24;
 
 mod day01;
 mod day02;
@@ -50,6 +51,7 @@ mod day20;
 mod day21;
 mod day22;
 mod day23;
+mod day24;
 mod toolbox;
 
 macro_rules! measure {
@@ -177,8 +179,13 @@ fn main() {
         measure!(day22());
     }
 
-    if args.contains(&"all".to_string()) || args.contains(&"day23".to_string()) || args.contains(&"latest".to_string()) {
+    if args.contains(&"all".to_string()) || args.contains(&"day23".to_string()) {
         println!("{}", format!("--- day23:").underline().green());
         measure!(day23());
+    }
+
+    if args.contains(&"all".to_string()) || args.contains(&"day24".to_string()) || args.contains(&"latest".to_string()) {
+        println!("{}", format!("--- day24:").underline().green());
+        measure!(day24());
     }
 }
